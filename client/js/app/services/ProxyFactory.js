@@ -8,7 +8,6 @@ class ProxyFactory {
         if(props.includes(prop) && ProxyFactory._ehFuncao(target[prop])) {
 
           return function() {
-            console.log(`ìnterceptada ${prop}`);
             Reflect.apply(target[prop], target, arguments);
             return acao(target);
           }
@@ -18,7 +17,10 @@ class ProxyFactory {
       },
 
       set(target, prop, value, receiver) {
-        if(props.includes(prop))  acao(target);
+         if(props.includes(prop)) {
+            target[prop] = value;
+            acao(target);                                           
+          }
 
         return Reflect.set(target, prop, value, receiver);
       }

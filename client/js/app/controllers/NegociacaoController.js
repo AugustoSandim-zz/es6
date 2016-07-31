@@ -7,17 +7,15 @@ class NegociacaoController {
     this._inputQuantidade = $('#quantidade');
     this._inputValor = $('#valor');
 
-    this._negociacoesView = new NegociacoesView($('#negociacoesView'));
     this._listaNegociacoes = new Bind(
       new ListaNegociacoes(),
-      this._negociacoesView,
-      ['adiciona', 'esvazia']);
+      new NegociacoesView($('#negociacoesView')),
+      'adiciona', 'esvazia');
     
-    this._mensagemView = new MensagemView($('#mensagemView'));
     this._mensagem = new Bind(
       new Mensagem(),
-      this._mensagemView,
-      ['texto']);
+      new MensagemView($('#mensagemView')),
+      'texto');
   }
 
   adiciona(event) {
@@ -26,6 +24,34 @@ class NegociacaoController {
     this._listaNegociacoes.adiciona(this._criaNegociacao());
     this._mensagem.texto = 'Negociação adicionada com sucesso';
     this._limpaFormulario();
+  }
+
+  importaNegociacoes() {
+    let xhr = new XMLHttpRequest();
+
+    xhr.open('GET', 'negociacoes/semana');
+
+    xhr.onreadystatechange = () => {
+
+      if(xhr.readyState == 4) {
+
+        if(xhr.status == 200) {
+          
+          JSON.parse(xhr.responseText)
+            .map(objeto => new Negociacao(new Date(objeto.data), objeto.quantidade, objeto.valor))
+            .forEach(negociacao => this._listaNegociacoes.adiciona(negociacao));
+          
+          this._mensagem.texto = 'Negociacoes importadas com sucesso.';
+
+        } else {
+          console.log(xhr.responseText);
+          this._mensagem.texto = 'Não foi possível obter as negociacoes da semana.';
+        }
+        
+      }
+    }
+
+    xhr.send();
   }
 
   apaga() {
