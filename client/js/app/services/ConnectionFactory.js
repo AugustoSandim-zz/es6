@@ -4,9 +4,8 @@ var ConnectionFactory = (function () {
   const version = 4;
   const dbName = 'sandimframe';
 
-  var connection = null;
-
-  var close = null;
+  let connection = null;
+  let close = null;
 
   return class ConnectionFactory {
     
@@ -32,6 +31,7 @@ var ConnectionFactory = (function () {
             
             connection = e.target.result;
             close = connection.close.bind(connection);
+            // Override
             connection.close = function() {
               throw new Error('Você não pode fechar diretamente a conexão');
             };  
